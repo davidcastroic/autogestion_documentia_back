@@ -1,0 +1,24 @@
+.qodo
+# Entorno virtual
+venv/
+__pycache__/
+
+# Configuración local
+.env
+*.env
+
+# Archivos de credenciales sensibles
+*.json
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Carpetas del proyecto que no quieras subir
+impocali/
+
+# Archivos de subida
+uploads/
+
+# Archivos de logs
+*.log

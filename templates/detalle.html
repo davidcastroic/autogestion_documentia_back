@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revisión de Documentos - Impocali</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+
+<body>
+    <div class="container wide">
+        <h1><i class="fas fa-file-alt"></i> Detalle de la Solicitud</h1>
+
+        <!-- Archivos subidos -->
+        <div class="info-archivos">
+            <h2><i class="fas fa-folder-open"></i> Archivos Subidos:</h2>
+            <ul>
+                {% for archivo in solicitud.archivos %}
+                <li><i class="fas fa-file-pdf"></i> {{ archivo }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Información estructurada extraída -->
+        <div class="info-extraida">
+            <h2><i class="fas fa-info-circle"></i> Información Extraída:</h2>
+
+            {% for tipo, datos in solicitud.info.items() %}
+            <h3 style="margin-top: 20px; color: #0b57d0;">{{ tipo | replace("_", " ") | upper }}</h3>
+
+            {% if datos.error %}
+            <p style="color: red;"><strong>Error al procesar el documento:</strong> {{ datos.error }}</p>
+            {% elif datos %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Campo</th>
+                        <th>Valor</th>
+                        <th>Confianza</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campo, resultado in datos.items() %}
+                    <tr>
+                        <td>{{ campo }}</td>
+                        <td>{{ resultado.valor if resultado.valor else '-' }}</td>
+                        <td>{{ resultado.confianza if resultado.confianza else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p><em>No se extrajo información de este documento.</em></p>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- JSON completo -->
+        <div class="json-output">
+            <h2><i class="fas fa-code"></i> JSON Capturado por Document AI:</h2>
+            <pre>{{ solicitud.info | tojson(indent=2) }}</pre>
+        </div>
+
+        <!-- Motivo del rechazo si aplica -->
+        {% if solicitud.estado == 'rechazado' and solicitud.motivo %}
+        <div class="info-extraida">
+            <h2><i class="fas fa-exclamation-circle"></i> Motivo del Rechazo:</h2>
+            <p>{{ solicitud.motivo }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Acciones -->
+        <div class="acciones">
+            <button class="btn aprobar"><i class="fas fa-check"></i> Aceptar Documentos</button>
+            <button class="btn rechazar" onclick="mostrarMotivo()"><i class="fas fa-times"></i> Rechazar
+                Documentos</button>
+        </div>
+
+        <!-- Formulario de rechazo -->
+        <div id="motivoRechazo" style="display:none;">
+            <label for="motivo"><strong>Motivo del rechazo:</strong></label>
+            <textarea id="motivo" rows="4" placeholder="Explica el motivo del rechazo..."></textarea>
+            <button class="btn enviar-rechazo">Enviar Rechazo</button>
+        </div>
+    </div>
+
+    <script>
+        function mostrarMotivo() {
+            document.getElementById('motivoRechazo').style.display = 'block';
+        }
+
+        document.querySelector('.btn.aprobar')?.addEventListener('click', () => {
+            const solicitudId = window.location.pathname.split('/').pop();
+            fetch(`/aceptar/${solicitudId}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        alert("Documentos aceptados correctamente");
+                        window.location.href = "/admin";
+                    }
+                });
+        });
+
+        document.querySelector('.btn.enviar-rechazo')?.addEventListener('click', () => {
+            const solicitudId = window.location.pathname.split('/').pop();
+            const motivo = document.getElementById('motivo').value.trim();
+
+            if (!motivo) {
+                alert("Debes ingresar un motivo de rechazo.");
+                return;
+            }
+
+            fetch(`/rechazar/${solicitudId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `motivo=${encodeURIComponent(motivo)}`
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "ok") {
+                        alert("Documentos rechazados con éxito.");
+                        window.location.href = "/admin";
+                    }
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Autogestión de Documentos - Impocali</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="static/css/estilos.css">
+</head>
+
+<body class="centered">
+    <div class="container narrow">
+        <h1><i class="fas fa-cloud-upload-alt"></i> Autogestión de Documentos</h1>
+        <form id="formularioDocumentos" action="{{ url_for('subir_documentos') }}" method="post" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label class="icon-label" for="docIdentidad">
+                    <i class="fas fa-id-card"></i> Documento de Identidad (PDF):
+                </label>
+                <input type="file" id="docIdentidad" name="docIdentidad" accept=".pdf" required />
+            </div>
+            <div class="form-group">
+                <label class="icon-label" for="rut">
+                    <i class="fas fa-file-invoice"></i> RUT (PDF):
+                </label>
+                <input type="file" id="rut" name="rut" accept=".pdf" required />
+            </div>
+            <div class="form-group">
+                <label class="icon-label" for="camara">
+                    <i class="fas fa-building"></i> Cámara de Comercio (PDF):
+                </label>
+                <input type="file" id="camara" name="camara" accept=".pdf" required />
+            </div>
+            <button type="submit">Subir Documentos</button>
+        </form>
+        <div class="footer">Impocali &reg; 2025, todos los derechos reservados.</div>
+    </div>
+</body>
+
+</html>

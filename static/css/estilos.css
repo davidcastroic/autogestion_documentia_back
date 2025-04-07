@@ -1,0 +1,243 @@
+/* ====== Reset general ====== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ====== Tipografía general ====== */
+body {
+    font-family: 'Rajdhani', sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+/* ====== Cuando se desea centrar el contenido (solo index.html) ====== */
+body.centered {
+    background: linear-gradient(135deg, #e8f0fa, #ffffff);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ====== Contenedor general ====== */
+.container {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin: 40px auto;
+}
+
+/* ====== Contenedor estrecho (index.html) ====== */
+.container.narrow {
+    max-width: 600px;
+}
+
+/* ====== Contenedor ancho (admin, detalle) ====== */
+.container.wide {
+    max-width: 700px;
+    margin: 40px auto;
+}
+
+/* ====== Títulos ====== */
+h1 {
+    text-align: center;
+    color: #0087ca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+h2 {
+    color: #0087ca;
+    margin-bottom: 15px;
+}
+
+h1 i,
+h2 i {
+    color: #0087ca;
+}
+
+/* ====== Formularios ====== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+
+input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+}
+
+input[type="file"]:focus {
+    border-color: #0087ca;
+    outline: none;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 14px;
+}
+
+/* ====== Botones ====== */
+button,
+.btn {
+    background-color: #0b57d0;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+    display: inline-block;
+}
+
+button:hover,
+.btn:hover {
+    background-color: #084cb8;
+}
+
+.btn.aprobar {
+    background-color: #084cb8;
+}
+
+.btn.rechazar {
+    background-color: #d9534f;
+}
+
+.btn.enviar-rechazo {
+    background-color: #f0ad4e;
+    margin-top: 10px;
+}
+
+/* ====== Etiquetas con íconos ====== */
+.icon-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ====== Footer ====== */
+.footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+/* ====== Tablas ====== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+thead {
+    background-color: #0087ca;
+    color: white;
+}
+
+th,
+td {
+    padding: 14px 12px;
+    text-align: center;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* ====== Estado Etiquetas ====== */
+.estado {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.sin-revisar {
+    background-color: #f0ad4e;
+    color: white;
+}
+
+.aprobado {
+    background-color: #5cb85c;
+    color: white;
+}
+
+.rechazado {
+    background-color: #d9534f;
+    color: white;
+}
+
+/* ====== Enlaces ====== */
+a {
+    color: #0b57d0;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ====== JSON Output ====== */
+.json-output pre {
+    background-color: #f2f2f2;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    overflow-x: auto;
+    max-height: 300px;
+}
+
+/* ====== Acciones ====== */
+.acciones {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.acciones .btn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* ====== Ocultos ====== */
+#motivoRechazo {
+    display: none;
+    margin-top: 20px;
+}
+
+/* ====== Secciones bien separadas ====== */
+.info-archivos,
+.info-extraida,
+.json-output {
+    margin-bottom: 25px;
+}
