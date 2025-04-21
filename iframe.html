@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Prueba de Iframe - Impocali</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        header,
+        footer {
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        iframe {
+            border: 1px solid #ccc;
+            width: 100%;
+            height: 800px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>🔗 Simulador de App Principal (Iframe de Impocali)</header>
+
+    <!-- Control de navegación -->
+    <div>
+        <button onclick="cargarVista('/')">Cliente: Carga de Documentos</button>
+        <button onclick="cargarVista('/admin')">Admin: Panel de Solicitudes</button>
+        <button onclick="cargarVista('/detalle/1')">Admin: Detalle Solicitud ID 1</button>
+    </div>
+
+    <!-- Tu iframe -->
+    <iframe id="autogestionIframe" src="http://localhost:5000/admin" frameborder="0"></iframe>
+
+    <footer>🔗 Footer de la App Principal</footer>
+
+    <script>
+        const iframe = document.getElementById('autogestionIframe');
+
+        // Simulación de token para la prueba
+        const tokenDePrueba = "abcabc";
+
+        // Enviar token al iframe cuando cargue
+        iframe.onload = function () {
+            iframe.contentWindow.postMessage({ token: tokenDePrueba }, '*');
+            console.log("✅ Token enviado al iframe:", tokenDePrueba);
+        };
+
+        // Función para cambiar la vista dentro del iframe
+        function cargarVista(ruta) {
+            iframe.src = `http://localhost:5000${ruta}`;
+        }
+    </script>
+
+</body>
+
+</html>

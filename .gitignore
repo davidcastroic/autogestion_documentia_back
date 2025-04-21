@@ -22,3 +22,4 @@ uploads/
 
 # Archivos de logs
 *.log
+.env.development

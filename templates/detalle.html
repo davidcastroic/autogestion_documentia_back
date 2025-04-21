@@ -90,22 +90,54 @@
     </div>
 
     <script>
+        // =========================
+        // 🚀 Capturar token desde postMessage
+        // =========================
+        let token = '';
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.token) {
+                token = event.data.token;
+                localStorage.setItem('token', token);
+                console.log("✅ Token recibido y guardado:", token);
+            }
+        });
+
+        // =========================
+        // 🚀 Función fetch con token incluido
+        // =========================
+        function fetchConToken(url, options = {}) {
+            const headers = options.headers || {};
+            const storedToken = localStorage.getItem('token');
+
+            if (storedToken) {
+                headers['Authorization'] = `Bearer ${storedToken}`;
+            }
+
+            options.headers = headers;
+            return fetch(url, options);
+        }
+
         function mostrarMotivo() {
             document.getElementById('motivoRechazo').style.display = 'block';
         }
 
+        // 🚀 Acción: Aceptar documentos
         document.querySelector('.btn.aprobar')?.addEventListener('click', () => {
             const solicitudId = window.location.pathname.split('/').pop();
-            fetch(`/aceptar/${solicitudId}`, { method: 'POST' })
+            fetchConToken(`/aceptar/${solicitudId}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === "ok") {
                         alert("Documentos aceptados correctamente");
                         window.location.href = "/admin";
+                    } else {
+                        alert(data.error || "Error al aceptar documentos.");
                     }
                 });
         });
 
+        // 🚀 Acción: Enviar rechazo
         document.querySelector('.btn.enviar-rechazo')?.addEventListener('click', () => {
             const solicitudId = window.location.pathname.split('/').pop();
             const motivo = document.getElementById('motivo').value.trim();
@@ -115,7 +147,7 @@
                 return;
             }
 
-            fetch(`/rechazar/${solicitudId}`, {
+            fetchConToken(`/rechazar/${solicitudId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `motivo=${encodeURIComponent(motivo)}`
@@ -125,6 +157,8 @@
                     if (data.status === "ok") {
                         alert("Documentos rechazados con éxito.");
                         window.location.href = "/admin";
+                    } else {
+                        alert(data.error || "Error al rechazar documentos.");
                     }
                 });
         });

@@ -44,6 +44,36 @@
             </tbody>
         </table>
     </div>
+
+    <script>
+        // =========================
+        // 🚀 Capturar token desde postMessage
+        // =========================
+        let token = '';
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.token) {
+                token = event.data.token;
+                localStorage.setItem('token', token);
+                console.log("✅ Token recibido y guardado:", token);
+            }
+        });
+
+        // =========================
+        // 🚀 Función fetch con token incluido
+        // =========================
+        function fetchConToken(url, options = {}) {
+            const headers = options.headers || {};
+            const storedToken = localStorage.getItem('token');
+
+            if (storedToken) {
+                headers['Authorization'] = `Bearer ${storedToken}`;
+            }
+
+            options.headers = headers;
+            return fetch(url, options);
+        }
+    </script>
 </body>
 
 </html>
