@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Autogestión de Documentos - Impocali</title>
+
+    <!-- Tipografía y Estilos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400&display=swap" rel="stylesheet">
@@ -13,32 +15,130 @@
 </head>
 
 <body class="centered">
-    <div class="container narrow">
+    <div class="container narrow" id="contenido">
         <h1><i class="fas fa-cloud-upload-alt"></i> Autogestión de Documentos</h1>
-        <form id="formularioDocumentos" action="{{ url_for('subir_documentos') }}" method="post" enctype="multipart/form-data">
 
+        <form id="formularioDocumentos" enctype="multipart/form-data">
             <div class="form-group">
                 <label class="icon-label" for="docIdentidad">
                     <i class="fas fa-id-card"></i> Documento de Identidad (PDF):
                 </label>
                 <input type="file" id="docIdentidad" name="docIdentidad" accept=".pdf" required />
             </div>
+
             <div class="form-group">
                 <label class="icon-label" for="rut">
                     <i class="fas fa-file-invoice"></i> RUT (PDF):
                 </label>
                 <input type="file" id="rut" name="rut" accept=".pdf" required />
             </div>
+
             <div class="form-group">
                 <label class="icon-label" for="camara">
                     <i class="fas fa-building"></i> Cámara de Comercio (PDF):
                 </label>
                 <input type="file" id="camara" name="camara" accept=".pdf" required />
             </div>
+
             <button type="submit">Subir Documentos</button>
         </form>
+
         <div class="footer">Impocali &reg; 2025, todos los derechos reservados.</div>
     </div>
+
+    <script>
+        // =========================
+        // 🚀 Captura postMessage y guarda en localStorage
+        // =========================
+        window.addEventListener('message', (event) => {
+            if (event.data?.token) {
+                localStorage.setItem('token', event.data.token);
+                if (event.data.id) localStorage.setItem('usuario_id', event.data.id);
+                if (event.data.correo) localStorage.setItem('correo', event.data.correo);
+                console.log("✅ Datos recibidos y guardados:", event.data);
+                validarToken();
+            }
+        });
+
+        // =========================
+        // 🚀 Validar token antes de cargar vista
+        // =========================
+        function validarToken() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("❌ Token no encontrado.");
+                document.getElementById('contenido').style.display = 'none';
+                return;
+            }
+
+            fetch('/validar-token', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+                .then(res => {
+                    if (!res.ok) {
+                        alert("❌ Token inválido. Acceso denegado.");
+                        document.getElementById('contenido').style.display = 'none';
+                        return;
+                    }
+                    console.log("✅ Token validado correctamente.");
+                    document.getElementById('contenido').style.display = 'block';
+                })
+                .catch(err => {
+                    console.error("❌ Error al validar token:", err);
+                    document.getElementById('contenido').style.display = 'none';
+                });
+        }
+
+        // =========================
+        // 🚀 Subir documentos
+        // =========================
+        document.getElementById('formularioDocumentos').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const token = localStorage.getItem('token');
+            const usuario_id = localStorage.getItem('usuario_id');
+            const correo = localStorage.getItem('correo');
+
+            if (!token || !usuario_id || !correo) {
+                alert("❌ Datos del usuario incompletos. Verifica que el iframe haya enviado la información.");
+                return;
+            }
+
+            const formData = new FormData(this);
+            formData.append("usuario_id", usuario_id);
+            formData.append("correo", correo);
+
+            fetch('/subir', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            })
+                .then(res => res.ok ? res : Promise.reject(res))
+                .then(() => {
+                    alert("✅ Documentos subidos correctamente.");
+                    window.location.href = "/admin";
+                })
+                .catch(err => {
+                    err.text().then(text => {
+                        alert(`❌ Error al subir documentos: ${text}`);
+                        console.error("Error:", text);
+                    });
+                });
+        });
+
+        // =========================
+        // 🚀 Validar si ya hay token guardado
+        // =========================
+        if (localStorage.getItem('token')) {
+            validarToken();
+        } else {
+            document.getElementById('contenido').style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>

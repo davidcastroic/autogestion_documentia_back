@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: impocali-deployment
+  labels:
+    app: impocali
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: impocali
+  template:
+    metadata:
+      labels:
+        app: impocali
+    spec:
+      containers:
+        - name: impocali-container
+          image: gcr.io/co-impocali-cld-01/impocali-backend
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: GCS_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: gcs-secrets
+                  key: bucket_name
+            - name: GCS_CREDENTIALS_PATH
+              value: "/secrets/credentials.json"
+            - name: GCP_PROJECT_ID
+              value: "co-impocali-cld-01"
+          volumeMounts:
+            - name: gcs-credentials
+              mountPath: "/secrets"
+              readOnly: true
+      volumes:
+        - name: gcs-credentials
+          secret:
+            secretName: gcs-credentials

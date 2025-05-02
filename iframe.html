@@ -33,7 +33,7 @@
 
 <body>
 
-    <header>🔗 Simulador de App Principal (Iframe de Impocali)</header>
+    <header>Simulador de Aplicación Principal (Iframe Impocali)</header>
 
     <!-- Control de navegación -->
     <div>
@@ -42,27 +42,56 @@
         <button onclick="cargarVista('/detalle/1')">Admin: Detalle Solicitud ID 1</button>
     </div>
 
-    <!-- Tu iframe -->
+    <!-- Iframe -->
     <iframe id="autogestionIframe" src="http://localhost:5000/admin" frameborder="0"></iframe>
 
-    <footer>🔗 Footer de la App Principal</footer>
+    <footer>Footer de la Aplicación Principal</footer>
 
     <script>
         const iframe = document.getElementById('autogestionIframe');
 
-        // Simulación de token para la prueba
-        const tokenDePrueba = "abcabc";
+        // Datos quemados para pruebas locales
+        const token = "dcc414bd3f1d41f93c26fc7753f3b72b1eda4ef763d4d31d61f49ba8053c1f3f"; // Token quemado
+        const id = 123;
+        const correo = "usuario@impocali.com";
 
-        // Enviar token al iframe cuando cargue
-        iframe.onload = function () {
-            iframe.contentWindow.postMessage({ token: tokenDePrueba }, '*');
-            console.log("✅ Token enviado al iframe:", tokenDePrueba);
-        };
+        /**
+         * Guarda los datos de autenticación en localStorage.
+         */
+        function guardarDatosGlobales() {
+            localStorage.setItem("token", token);
+            localStorage.setItem("usuario_id", id);
+            localStorage.setItem("correo", correo);
+        }
 
-        // Función para cambiar la vista dentro del iframe
+        /**
+         * Envía los datos al iframe mediante postMessage.
+         */
+        function enviarPostMessage() {
+            const storedToken = localStorage.getItem("token");
+            const storedId = localStorage.getItem("usuario_id");
+            const storedCorreo = localStorage.getItem("correo");
+
+            if (storedToken && storedId && storedCorreo) {
+                iframe.contentWindow.postMessage({ token: storedToken, id: storedId, correo: storedCorreo }, '*');
+                console.log("Datos enviados al iframe:", { token: storedToken, id: storedId, correo: storedCorreo });
+            } else {
+                console.warn("Faltan datos para enviar al iframe.");
+            }
+        }
+
+        /**
+         * Cambia la vista dentro del iframe.
+         * @param {string} ruta 
+         */
         function cargarVista(ruta) {
             iframe.src = `http://localhost:5000${ruta}`;
+            iframe.onload = enviarPostMessage;
         }
+
+        // Inicialización: guardar datos y enviar al iframe
+        guardarDatosGlobales();
+        iframe.onload = enviarPostMessage;
     </script>
 
 </body>

@@ -28,7 +28,10 @@
                 {% for s in solicitudes %}
                 <tr>
                     <td>{{ s.fecha }}</td>
-                    <td>{{ s.usuario }}</td>
+                    <td>
+                        <strong>ID:</strong> {{ s.usuario_id }}<br>
+                        <strong>Email:</strong> {{ s.correo or 'No registrado' }}
+                    </td>
                     <td>
                         {% if s.estado == 'sin revisar' %}
                         <span class="estado sin-revisar"><i class="fas fa-hourglass-half"></i> Sin Revisar</span>
@@ -38,7 +41,9 @@
                         <span class="estado rechazado"><i class="fas fa-times-circle"></i> Rechazado</span>
                         {% endif %}
                     </td>
-                    <td><a href="{{ url_for('detalle', id=s.id) }}" class="btn">Ver Detalles</a></td>
+                    <td>
+                        <a href="{{ url_for('detalle', id=s.id) }}" class="btn">Ver Detalles</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -49,13 +54,10 @@
         // =========================
         // 🚀 Capturar token desde postMessage
         // =========================
-        let token = '';
-
         window.addEventListener('message', (event) => {
             if (event.data && event.data.token) {
-                token = event.data.token;
-                localStorage.setItem('token', token);
-                console.log("✅ Token recibido y guardado:", token);
+                localStorage.setItem('token', event.data.token);
+                console.log("✅ Token recibido y guardado:", event.data.token);
             }
         });
 
@@ -65,11 +67,9 @@
         function fetchConToken(url, options = {}) {
             const headers = options.headers || {};
             const storedToken = localStorage.getItem('token');
-
             if (storedToken) {
                 headers['Authorization'] = `Bearer ${storedToken}`;
             }
-
             options.headers = headers;
             return fetch(url, options);
         }
