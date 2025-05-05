@@ -1,17 +1,13 @@
-# Imagen base con Python 3.10
-FROM python:3.10-slim
+FROM python:3.10
 
-# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar archivos del proyecto al contenedor
-COPY . /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
-# Instalar dependencias
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
 
-# Expone el puerto usado por Flask
-EXPOSE 5000
+# Copiamos explícitamente el archivo de entorno
+COPY .env.production .env.production
 
-# Ejecuta la app usando Gunicorn para producción
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

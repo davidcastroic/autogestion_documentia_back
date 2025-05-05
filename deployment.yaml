@@ -16,12 +16,14 @@ spec:
     spec:
       containers:
         - name: impocali-container
-          image: gcr.io/co-impocali-cld-01/impocali-backend
+          image: us-docker.pkg.dev/co-impocali-cld-01/gcr.io/impocali-backend:latest
           ports:
             - containerPort: 5000
           env:
-            - name: FLASK_ENV
-              value: "production"
+            - name: FLASK_DEBUG
+              value: "0"
+
+            # Cloud Storage
             - name: GCS_BUCKET_NAME
               valueFrom:
                 secretKeyRef:
@@ -31,11 +33,42 @@ spec:
               value: "/secrets/credentials.json"
             - name: GCP_PROJECT_ID
               value: "co-impocali-cld-01"
+
+            # Base de datos
+            - name: DB_HOST
+              value: "34.123.45.67"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+            - name: DB_NAME
+              value: "autogestion"
+
+            # Validación de sesión
+            - name: SESION_VALIDACION_URL
+              value: "https://api.impocali.com/validar-token"
+
           volumeMounts:
             - name: gcs-credentials
               mountPath: "/secrets"
               readOnly: true
+
+          resources:
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+
       volumes:
         - name: gcs-credentials
           secret:
             secretName: gcs-credentials
+      restartPolicy: Always

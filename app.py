@@ -15,10 +15,11 @@ from google.cloud import secretmanager
 from google.cloud import documentai_v1 as documentai
 from google.cloud import storage
 
+"""
 # Configuración dinámica de entorno
 env = os.getenv('FLASK_ENV', 'development')
 dotenv_file = f'.env.{env}'
-load_dotenv(dotenv_file)
+load_dotenv(dotenv_file)"""
 
 # Configuración de logging
 logging.basicConfig(level=logging.INFO)
@@ -325,6 +326,3 @@ def validar_token_simple():
     if token == obtener_token_secreto():
         return jsonify({"status": "ok"})
     return jsonify({"error": "Token inválido"}), 401
-
-if __name__ == '__main__':
-    app.run(debug=True)
