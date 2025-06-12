@@ -36,7 +36,8 @@
             <h2><i class="fas fa-folder-open"></i> Archivos Subidos:</h2>
             <ul>
                 {% for archivo in solicitud.archivos %}
-                <li><i class="fas fa-file-pdf"></i> {{ archivo }}</li>
+                <li><i class="fas fa-file-pdf"></i> <a href="{{ archivo.ruta }}" target="_blank">{{ archivo.nombre
+                        }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -46,7 +47,6 @@
             <h2><i class="fas fa-info-circle"></i> Información Extraída:</h2>
             {% for tipo, datos in solicitud.info.items() %}
             <h3 style="margin-top: 20px; color: #0b57d0;">{{ tipo | replace("_", " ") | upper }}</h3>
-
             {% if datos.error %}
             <p style="color: red;"><strong>Error al procesar el documento:</strong> {{ datos.error }}</p>
             {% elif datos %}
@@ -74,7 +74,7 @@
             {% endfor %}
         </div>
 
-        <!-- JSON completo -->
+        <!-- JSON -->
         <div class="json-output">
             <h2><i class="fas fa-code"></i> JSON Capturado por Document AI:</h2>
             <pre>{{ solicitud.info | tojson(indent=2) }}</pre>
@@ -94,26 +94,39 @@
             <button class="btn rechazar" id="btnRechazar"><i class="fas fa-times"></i> Rechazar Documentos</button>
         </div>
 
-        <!-- Formulario de rechazo -->
         <div id="motivoRechazo" class="oculto">
             <label for="motivo"><strong>Motivo del rechazo:</strong></label>
             <textarea id="motivo" rows="4" placeholder="Explica el motivo del rechazo..."></textarea>
             <button class="btn enviar-rechazo" id="btnEnviarRechazo">Enviar Rechazo</button>
         </div>
+
+        <div style="margin-top: 40px;">
+            <button onclick="volverAlPanel()" class="btn"><i class="fas fa-arrow-left"></i> Volver al Panel</button>
+        </div>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            window.addEventListener('message', (event) => {
-                if (event.data?.token) {
-                    localStorage.setItem('token', event.data.token);
-                    console.log("✅ Token recibido:", event.data.token);
-                }
-            });
+        let token = null;
 
+        window.addEventListener('message', (event) => {
+            if (event.data?.token) {
+                localStorage.setItem('token', event.data.token);
+                token = event.data.token;
+                console.log("✅ Token recibido y guardado:", token);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            token = localStorage.getItem('token');
+            if (window.parent !== window && token) {
+                window.parent.postMessage({ token }, '*');
+                console.log("🔁 Token reenviado desde detalle.html");
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
             function fetchConToken(url, options = {}) {
                 const headers = options.headers || {};
-                const token = localStorage.getItem('token');
                 if (token) headers['Authorization'] = `Bearer ${token}`;
                 options.headers = headers;
                 return fetch(url, options);
@@ -143,7 +156,7 @@
                         .then(data => {
                             if (data.status === "ok") {
                                 alert("Documentos aceptados.");
-                                window.location.href = "/admin";
+                                window.location.href = `/admin?token=${encodeURIComponent(token)}`;
                             } else {
                                 alert(data.error || "Error al aceptar.");
                                 resetBtn(btn);
@@ -183,7 +196,7 @@
                         .then(data => {
                             if (data.status === "ok") {
                                 alert("Documentos rechazados.");
-                                window.location.href = "/admin";
+                                window.location.href = `/admin?token=${encodeURIComponent(token)}`;
                             } else {
                                 alert(data.error || "Error al rechazar.");
                                 resetBtn(btn);
@@ -203,6 +216,15 @@
                 btn.classList.remove('disabled');
             }
         });
+
+        function volverAlPanel() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("⚠️ Token no disponible.");
+                return;
+            }
+            window.location.href = `/admin?token=${encodeURIComponent(token)}`;
+        }
     </script>
 </body>
 

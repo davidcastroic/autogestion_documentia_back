@@ -5,10 +5,10 @@ metadata:
   labels:
     app: impocali
 spec:
-  type: LoadBalancer # Esto permite obtener una IP pública accesible
+  type: LoadBalancer
   selector:
-    app: impocali # Debe coincidir con el label del deployment
+    app: impocali
   ports:
     - protocol: TCP
-      port: 80 # Puerto accesible externamente
-      targetPort: 5000 # Puerto donde tu app Flask (Gunicorn) escucha internamente
+      port: 80 # Puerto público (externo)
+      targetPort: 8000

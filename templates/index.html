@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Autogestión de Documentos - Impocali</title>
 
-    <!-- Tipografía y Estilos -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/css/estilos.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 
 <body class="centered">
@@ -40,16 +38,20 @@
                 <input type="file" id="camara" name="camara" accept=".pdf" required />
             </div>
 
-            <button type="submit">Subir Documentos</button>
+            <button type="submit" class="btn"><i class="fas fa-upload"></i> Subir Documentos</button>
         </form>
 
         <div class="footer">Impocali &reg; 2025, todos los derechos reservados.</div>
     </div>
 
     <script>
-        // =========================
-        // 🚀 Captura postMessage y guarda en localStorage
-        // =========================
+        function fetchConToken(url, options = {}) {
+            const token = localStorage.getItem('token');
+            if (!options.headers) options.headers = {};
+            options.headers['Authorization'] = `Bearer ${token}`;
+            return fetch(url, options); // ✅ uso de rutas relativas
+        }
+
         window.addEventListener('message', (event) => {
             if (event.data?.token) {
                 localStorage.setItem('token', event.data.token);
@@ -60,22 +62,8 @@
             }
         });
 
-        // =========================
-        // 🚀 Validar token antes de cargar vista
-        // =========================
         function validarToken() {
-            const token = localStorage.getItem('token');
-
-            if (!token) {
-                alert("❌ Token no encontrado.");
-                document.getElementById('contenido').style.display = 'none';
-                return;
-            }
-
-            fetch('/validar-token', {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
+            fetchConToken('/validar-token', { method: 'GET' })
                 .then(res => {
                     if (!res.ok) {
                         alert("❌ Token inválido. Acceso denegado.");
@@ -91,9 +79,6 @@
                 });
         }
 
-        // =========================
-        // 🚀 Subir documentos
-        // =========================
         document.getElementById('formularioDocumentos').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -102,7 +87,7 @@
             const correo = localStorage.getItem('correo');
 
             if (!token || !usuario_id || !correo) {
-                alert("❌ Datos del usuario incompletos. Verifica que el iframe haya enviado la información.");
+                alert("❌ Datos del usuario incompletos.");
                 return;
             }
 
@@ -110,29 +95,32 @@
             formData.append("usuario_id", usuario_id);
             formData.append("correo", correo);
 
-            fetch('/subir', {
+            console.log("📤 Enviando documentos...");
+
+            fetchConToken('/subir', {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
                 body: formData
             })
-                .then(res => res.ok ? res : Promise.reject(res))
+                .then(res => {
+                    if (!res.ok) throw res;
+                    return res;
+                })
                 .then(() => {
                     alert("✅ Documentos subidos correctamente.");
                     window.location.href = "/admin";
                 })
                 .catch(err => {
-                    err.text().then(text => {
-                        alert(`❌ Error al subir documentos: ${text}`);
-                        console.error("Error:", text);
-                    });
+                    console.error("❌ Error en la subida:", err);
+                    if (err instanceof Response && err.text) {
+                        err.text().then(text => {
+                            alert(`❌ Error: ${text}`);
+                        });
+                    } else {
+                        alert("❌ Error inesperado.");
+                    }
                 });
         });
 
-        // =========================
-        // 🚀 Validar si ya hay token guardado
-        // =========================
         if (localStorage.getItem('token')) {
             validarToken();
         } else {

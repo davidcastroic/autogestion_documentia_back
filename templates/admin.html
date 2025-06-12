@@ -9,12 +9,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="static/css/estilos.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 
 <body>
     <div class="container wide">
         <h1><i class="fas fa-user-cog"></i> Solicitudes de Clientes</h1>
+
         <table>
             <thead>
                 <tr>
@@ -42,37 +43,52 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{{ url_for('detalle', id=s.id) }}" class="btn">Ver Detalles</a>
+                        <a href="#" class="btn ver-detalle" data-id="{{ s.id }}">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <div style="margin-top: 40px;">
+            <button onclick="location.reload()" class="btn"><i class="fas fa-sync"></i> Recargar</button>
+        </div>
     </div>
 
     <script>
-        // =========================
-        // 🚀 Capturar token desde postMessage
-        // =========================
+        let token = null;
+
         window.addEventListener('message', (event) => {
-            if (event.data && event.data.token) {
+            if (event.data?.token) {
                 localStorage.setItem('token', event.data.token);
-                console.log("✅ Token recibido y guardado:", event.data.token);
+                token = event.data.token;
+                console.log("✅ Token recibido y guardado:", token);
             }
         });
 
-        // =========================
-        // 🚀 Función fetch con token incluido
-        // =========================
-        function fetchConToken(url, options = {}) {
-            const headers = options.headers || {};
-            const storedToken = localStorage.getItem('token');
-            if (storedToken) {
-                headers['Authorization'] = `Bearer ${storedToken}`;
+        document.addEventListener('DOMContentLoaded', () => {
+            token = localStorage.getItem('token');
+
+            if (!token) {
+                alert("⚠️ Token no disponible. Por favor accede desde el sistema principal.");
+                return;
             }
-            options.headers = headers;
-            return fetch(url, options);
-        }
+
+            if (window.parent !== window) {
+                window.parent.postMessage({ token }, '*');
+                console.log("🔁 Token reenviado al sistema principal desde admin.html");
+            }
+
+            document.querySelectorAll('.ver-detalle').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = btn.getAttribute('data-id');
+                    window.location.href = `/detalle/${id}?token=${encodeURIComponent(token)}`;
+                });
+            });
+        });
     </script>
 </body>
 

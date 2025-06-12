@@ -14,16 +14,15 @@ spec:
       labels:
         app: impocali
     spec:
+      serviceAccountName: impocali-sa
       containers:
-        - name: impocali-container
-          image: us-docker.pkg.dev/co-impocali-cld-01/gcr.io/impocali-backend:latest
+        - name: impocali-backend
+          image: us-docker.pkg.dev/co-impocali-cld-01/impocali-backend/backend:latest
           ports:
-            - containerPort: 5000
+            - containerPort: 8000
           env:
             - name: FLASK_DEBUG
               value: "0"
-
-            # Cloud Storage
             - name: GCS_BUCKET_NAME
               valueFrom:
                 secretKeyRef:
@@ -33,10 +32,12 @@ spec:
               value: "/secrets/credentials.json"
             - name: GCP_PROJECT_ID
               value: "co-impocali-cld-01"
-
-            # Base de datos
+            - name: GMAIL_SENDER
+              value: "no-responder@impocali.com"
+            - name: GMAIL_TOKEN_PATH
+              value: "/gmail"
             - name: DB_HOST
-              value: "34.123.45.67"
+              value: "34.75.132.247"
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
@@ -49,26 +50,56 @@ spec:
                   key: password
             - name: DB_NAME
               value: "autogestion"
-
-            # Validación de sesión
             - name: SESION_VALIDACION_URL
               value: "https://api.impocali.com/validar-token"
+            - name: GOOGLE_OAUTH_REDIRECT
+              value: "https://34.74.246.24/auth/callback"
+            - name: PROCESSOR_CEDULAS
+              value: "4ea25bcf738a49d8"
+            - name: PROCESSOR_RUT
+              value: "a2602ab41b5478fb"
+            - name: PROCESSOR_CAMARA
+              value: "c643a041b96f7c47"
 
           volumeMounts:
             - name: gcs-credentials
               mountPath: "/secrets"
               readOnly: true
+            - name: gmail-auth
+              mountPath: "/gmail"
+              readOnly: true
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 15
+            failureThreshold: 5
 
           resources:
-            limits:
-              cpu: "1000m"
-              memory: "1024Mi"
             requests:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "300m"
+              memory: "768Mi"
+            limits:
+              cpu: "7500m"
+              memory: "5Gi"
 
       volumes:
         - name: gcs-credentials
           secret:
             secretName: gcs-credentials
+        - name: gmail-auth
+          secret:
+            secretName: gmail-auth-secret
       restartPolicy: Always

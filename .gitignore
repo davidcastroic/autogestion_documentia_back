@@ -16,6 +16,8 @@ Thumbs.db
 
 # Carpetas del proyecto que no quieras subir
 impocali/
+creds/gmail_token.pickle
+
 
 # Archivos de subida
 uploads/

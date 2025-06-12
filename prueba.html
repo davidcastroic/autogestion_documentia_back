@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Test Iframe - Panel Admin</title>
+</head>
+
+<body>
+
+    <h2>Test de carga dinámica de /admin con token</h2>
+
+    <iframe id="iframeAdmin" width="100%" height="800"></iframe>
+
+    <script>
+        const iframe = document.getElementById('iframeAdmin');
+
+        const token = "dcc414bd3f1d41f93c26fc7753f3b72b1eda4ef763d4d31d61f49ba8053c1f3f";  // Reemplaza si es necesario
+
+        fetch("http://34.74.246.24/admin", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return response.text();
+            })
+            .then(html => {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(html);
+                doc.close();
+                console.log("✅ /admin cargado correctamente en el iframe.");
+            })
+            .catch(error => {
+                const doc = iframe.contentDocument || iframe.contentWindow.document;
+                doc.open();
+                doc.write(`<p style="color: red;">❌ Error al cargar /admin: ${error.message}</p>`);
+                doc.close();
+                console.error("❌ Error al cargar /admin:", error);
+            });
+    </script>
+
+</body>
+
+</html>

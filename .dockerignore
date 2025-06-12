@@ -1,8 +1,29 @@
+# Archivos de entorno (evita problemas de permisos y fugas de secretos)
+.env
+.env.*
+*.bak
+
+# Archivos y carpetas de control de versiones
+.git
+.gitignore
+
+# Archivos y carpetas temporales del editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python bytecode
 __pycache__/
 *.pyc
-.venv/
-venv/
-uploads/
-*.env*
-.qodo/
-.git/
+*.pyo
+*.pyd
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de pruebas u otros entornos que no necesitas en producción
+tests/
+docs/
+notebooks/
